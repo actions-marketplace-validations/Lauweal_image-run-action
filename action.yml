@@ -1,4 +1,4 @@
-name: 'docker-run-action'
+name: 'image-run-action'
 description: 'Used to start the server docker image'
 author: 'lemonpaimc@126.com'
 inputs:
