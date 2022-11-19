@@ -212,9 +212,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const ssh2_1 = __nccwpck_require__(5869);
 const commands_1 = __nccwpck_require__(6496);
-const argsMap = new Map([
-    ["PORT", "p"]
-]);
+const argsMap = new Map([['PORT', 'p']]);
 function connect(options) {
     const conn = new ssh2_1.Client();
     return new Promise((resolve, reject) => {
@@ -249,15 +247,16 @@ function start(options, name, image, args = '') {
     });
 }
 function run() {
-    var _a;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const host = (_a = core.getInput('host')) !== null && _a !== void 0 ? _a : '';
+            const port = (_b = core.getInput('port')) !== null && _b !== void 0 ? _b : '';
             const username = core.getInput('username');
             const password = core.getInput('password');
             const image = core.getInput('image');
             const name = core.getInput('name');
-            const args = core.getInput('args');
+            const args = (_c = core.getInput('args')) !== null && _c !== void 0 ? _c : '';
             if (!username)
                 throw new Error('请输入用户名');
             if (!password)
@@ -268,15 +267,12 @@ function run() {
                 throw new Error('请输入镜像');
             if (!name)
                 throw new Error('请输入容器名');
+            if (!port)
+                throw new Error('请输入端口');
             const hosts = host.split('\n');
-            const code = args.split('\n').reduce((a, b) => {
-                const [key, value] = b.split('=');
-                if (!argsMap.get(key))
-                    return a;
-                return `${a} -${argsMap.get(key)} ${value}`;
-            }, '');
+            const _args = port.split('\n').reduce((a, b) => `${a} -p ${b}:${b}`, args);
             core.info(`IP: ${JSON.stringify(hosts)}`);
-            core.info(`args: ${code}`);
+            core.info(`args: ${args}`);
             // Promise.all(
             //   hosts.map(item =>
             //     start(

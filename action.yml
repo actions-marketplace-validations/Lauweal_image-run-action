@@ -17,6 +17,9 @@ inputs:
   name:
     required: true
     description: 'Container name'
+  port:
+    required: true
+    description: 'Container name'
   args:
     required: false
     description: 'args'
