@@ -272,7 +272,7 @@ function run() {
             const hosts = host.split('\n');
             const _args = port.split('\n').reduce((a, b) => `${a} -p ${b}:${b}`, args);
             core.info(`IP: ${JSON.stringify(hosts)}`);
-            core.info(`args: ${args}`);
+            core.info(`args: ${_args}`);
             // Promise.all(
             //   hosts.map(item =>
             //     start(
