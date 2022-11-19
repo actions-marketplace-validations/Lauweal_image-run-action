@@ -270,13 +270,24 @@ function run() {
                 const [key, value] = b.split('=');
                 return `${a} --${key} ${value}`;
             }, '');
-            Promise.all(hosts.map(item => start({
-                host: item,
-                username,
-                password
-            }, name, image, code))).catch((message) => {
-                core.setFailed(message.message);
-            });
+            core.info(`IP: ${JSON.stringify(hosts)}`);
+            core.info(`args: ${code}`);
+            // Promise.all(
+            //   hosts.map(item =>
+            //     start(
+            //       {
+            //         host: item,
+            //         username,
+            //         password
+            //       },
+            //       name,
+            //       image,
+            //       code
+            //     )
+            //   )
+            // ).catch(message => {
+            //   core.setFailed(message.message)
+            // })
         }
         catch (error) {
             if (error instanceof Error)
