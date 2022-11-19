@@ -1,11 +1,26 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'docker-run-action'
+description: 'Used to start the server docker image'
+author: 'lemonpaimc@126.com'
 inputs:
-  milliseconds: # change this
+  host: # change this
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Server ip address. Multiple ip addresses can be separated by commas (,)'
+  username:
+    required: true
+    description: 'user name'
+  password:
+    required: true
+    description: 'password'
+  image:
+    required: true
+    description: 'Image name'
+  name:
+    required: true
+    description: 'Container name'
+  args:
+    required: false
+    description: 'args'
+    default: ''
 runs:
   using: 'node16'
   main: 'dist/index.js'
