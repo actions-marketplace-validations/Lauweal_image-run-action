@@ -1,7 +1,5 @@
 import * as core from '@actions/core'
-import {
-  start,
-} from './commands'
+import {start} from './commands'
 
 async function run(): Promise<void> {
   try {

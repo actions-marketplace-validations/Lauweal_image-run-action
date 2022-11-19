@@ -2,12 +2,42 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 6496:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.startDockerImage = exports.pullDockerImage = exports.deleteDockerImage = exports.checkDockerImage = exports.deleteDockerContainer = exports.stopDockerContainer = exports.checkDockerContainer = void 0;
+exports.start = exports.connect = exports.startDockerImage = exports.pullDockerImage = exports.deleteDockerImage = exports.checkDockerImage = exports.deleteDockerContainer = exports.stopDockerContainer = exports.checkDockerContainer = void 0;
+const ssh2_1 = __nccwpck_require__(5869);
+const core = __importStar(__nccwpck_require__(2186));
 function checkDockerContainer(client, name) {
     return new Promise((resolve, reject) => {
         client.exec(`docker inspect ${name}`, { allowHalfOpen: true }, (err, channel) => {
@@ -171,6 +201,52 @@ function startDockerImage(client, name, image, args) {
     });
 }
 exports.startDockerImage = startDockerImage;
+function connect(options) {
+    const conn = new ssh2_1.Client();
+    return new Promise((resolve, reject) => {
+        conn
+            .connect(options)
+            .on('error', () => {
+            reject('连接异常');
+        })
+            .on('close', () => {
+            reject('连接关闭');
+        })
+            .on('ready', () => {
+            resolve(conn);
+        });
+    });
+}
+exports.connect = connect;
+// 启动
+function start(options, name, image, args = '') {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = yield connect(options);
+        core.info('开始检查docker容器');
+        let container = yield checkDockerContainer(client, name);
+        if (container) {
+            core.info('存在正在启动的容器，准备停止');
+            yield stopDockerContainer(client, name);
+            core.info('删除已经停止的容器');
+            yield deleteDockerContainer(client, name);
+        }
+        core.info('检查镜像');
+        let imagecode = yield checkDockerImage(client, image);
+        if (imagecode) {
+            core.info('删除已存在的镜像');
+            imagecode = yield deleteDockerImage(client, imagecode);
+        }
+        core.info('进行镜像拉取');
+        imagecode = yield pullDockerImage(client, image);
+        core.info('启动docker镜像');
+        yield startDockerImage(client, name, image, args);
+        core.info('启动成功');
+        client.end();
+        client.destroy();
+        core.info('关闭连接');
+    });
+}
+exports.start = start;
 
 
 /***/ }),
@@ -210,49 +286,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const ssh2_1 = __nccwpck_require__(5869);
 const commands_1 = __nccwpck_require__(6496);
-const argsMap = new Map([['PORT', 'p']]);
-function connect(options) {
-    const conn = new ssh2_1.Client();
-    return new Promise((resolve, reject) => {
-        conn
-            .connect(options)
-            .on('error', () => {
-            reject('连接异常');
-        })
-            .on('close', () => {
-            reject('连接关闭');
-        })
-            .on('ready', () => {
-            resolve(conn);
-        });
-    });
-}
-// 启动
-function start(options, name, image, args = '') {
-    return __awaiter(this, void 0, void 0, function* () {
-        const client = yield connect(options);
-        core.info('开始检查docker容器');
-        let container = yield (0, commands_1.checkDockerContainer)(client, name);
-        if (container) {
-            core.info('存在正在启动的容器，准备停止');
-            yield (0, commands_1.stopDockerContainer)(client, name);
-            core.info('删除已经停止的容器');
-            yield (0, commands_1.deleteDockerContainer)(client, name);
-        }
-        core.info('检查镜像');
-        let imagecode = yield (0, commands_1.checkDockerImage)(client, image);
-        if (imagecode) {
-            core.info('删除已存在的镜像');
-            imagecode = yield (0, commands_1.deleteDockerImage)(client, imagecode);
-        }
-        core.info('进行镜像拉取');
-        imagecode = yield (0, commands_1.pullDockerImage)(client, image);
-        core.info('启动docker镜像');
-        yield (0, commands_1.startDockerImage)(client, name, image, args);
-    });
-}
 function run() {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
@@ -280,7 +314,7 @@ function run() {
             const _args = port.split('\n').reduce((a, b) => `${a} -p ${b}:${b}`, args);
             core.info(`IP: ${JSON.stringify(hosts)}`);
             core.info(`args: ${_args}`);
-            Promise.all(hosts.map(item => start({
+            Promise.all(hosts.map(item => (0, commands_1.start)({
                 host: item,
                 username,
                 password
