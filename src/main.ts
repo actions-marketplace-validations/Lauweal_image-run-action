@@ -36,17 +36,23 @@ async function start(
   args: string = ''
 ) {
   const client = await connect(options)
-
+  core.info('开始检查docker容器')
   let container = await checkDockerContainer(client, name)
   if (container) {
+    core.info('存在正在启动的容器，准备停止')
     await stopDockerContainer(client, name)
+    core.info('删除已经停止的容器')
     await deleteDockerContainer(client, name)
   }
+  core.info('检查镜像')
   let imagecode = await checkDockerImage(client, image)
   if (imagecode) {
+    core.info('删除已存在的镜像')
     imagecode = await deleteDockerImage(client, imagecode)
   }
+  core.info('进行镜像拉取')
   imagecode = await pullDockerImage(client, image)
+  core.info('启动docker镜像')
   await startDockerImage(client, name, image, args)
 }
 
@@ -69,22 +75,22 @@ async function run(): Promise<void> {
     const _args = port.split('\n').reduce((a, b) => `${a} -p ${b}:${b}`, args)
     core.info(`IP: ${JSON.stringify(hosts)}`)
     core.info(`args: ${_args}`)
-    // Promise.all(
-    //   hosts.map(item =>
-    //     start(
-    //       {
-    //         host: item,
-    //         username,
-    //         password
-    //       },
-    //       name,
-    //       image,
-    //       code
-    //     )
-    //   )
-    // ).catch(message => {
-    //   core.setFailed(message.message)
-    // })
+    Promise.all(
+      hosts.map(item =>
+        start(
+          {
+            host: item,
+            username,
+            password
+          },
+          name,
+          image,
+          _args
+        )
+      )
+    ).catch(message => {
+      core.setFailed(message.message)
+    })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
