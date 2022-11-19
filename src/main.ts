@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { Client, ConnectConfig } from 'ssh2'
+import {Client, ConnectConfig} from 'ssh2'
 import {
   checkDockerContainer,
   checkDockerImage,
@@ -10,9 +10,7 @@ import {
   stopDockerContainer
 } from './commands'
 
-const argsMap = new Map([
-  ["PORT", "p"]
-])
+const argsMap = new Map([['PORT', 'p']])
 function connect(options: ConnectConfig) {
   const conn = new Client()
   return new Promise<Client>((resolve, reject) => {
@@ -68,7 +66,7 @@ async function run(): Promise<void> {
     const hosts = host.split('\n')
     const code = args.split('\n').reduce((a, b) => {
       const [key, value] = b.split('=')
-      if (!argsMap.get(key)) return a;
+      if (!argsMap.get(key)) return a
       return `${a} -${argsMap.get(key)} ${value}`
     }, '')
     core.info(`IP: ${JSON.stringify(hosts)}`)

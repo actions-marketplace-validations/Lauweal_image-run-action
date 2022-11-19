@@ -212,6 +212,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const ssh2_1 = __nccwpck_require__(5869);
 const commands_1 = __nccwpck_require__(6496);
+const argsMap = new Map([
+    ["PORT", "p"]
+]);
 function connect(options) {
     const conn = new ssh2_1.Client();
     return new Promise((resolve, reject) => {
@@ -268,7 +271,9 @@ function run() {
             const hosts = host.split('\n');
             const code = args.split('\n').reduce((a, b) => {
                 const [key, value] = b.split('=');
-                return `${a} --${key} ${value}`;
+                if (!argsMap.get(key))
+                    return a;
+                return `${a} -${argsMap.get(key)} ${value}`;
             }, '');
             core.info(`IP: ${JSON.stringify(hosts)}`);
             core.info(`args: ${code}`);
