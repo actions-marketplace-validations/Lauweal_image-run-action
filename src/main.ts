@@ -80,7 +80,9 @@ async function run(): Promise<void> {
           code
         )
       )
-    )
+    ).catch(message => {
+      core.setFailed(message.message)
+    })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

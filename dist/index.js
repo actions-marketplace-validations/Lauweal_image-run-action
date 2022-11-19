@@ -12,7 +12,8 @@ function checkDockerContainer(client, name) {
     return new Promise((resolve, reject) => {
         client.exec(`docker inspect ${name}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('检查docker容器执行异常');
                 if (!_data) {
@@ -21,9 +22,11 @@ function checkDockerContainer(client, name) {
                 else {
                     resolve(!!JSON.parse(_data).length);
                 }
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', data => {
                 resolve(false);
             });
         });
@@ -34,13 +37,16 @@ function stopDockerContainer(client, name) {
     return new Promise((resolve, reject) => {
         client.exec(`docker stop ${name}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('停止docker容器执行异常');
                 resolve(true);
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', data => {
                 reject('停止docker容器执行异常');
             });
         });
@@ -51,13 +57,16 @@ function deleteDockerContainer(client, name) {
     return new Promise((resolve, reject) => {
         client.exec(`docker rm ${name} --force`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('删除docker容器执行异常');
                 resolve(true);
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', data => {
                 reject('删除docker容器执行异常');
             });
         });
@@ -68,7 +77,8 @@ function checkDockerImage(client, image) {
     return new Promise((resolve, reject) => {
         client.exec(`docker images -q ${image}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('检查docker镜像执行异常');
                 if (!!_data) {
@@ -77,9 +87,11 @@ function checkDockerImage(client, image) {
                 else {
                     resolve('');
                 }
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', (data) => {
                 reject('检查docker镜像执行异常');
             });
         });
@@ -90,7 +102,8 @@ function deleteDockerImage(client, image) {
     return new Promise((resolve, reject) => {
         client.exec(`docker rmi ${image}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('删除docker镜像执行异常');
                 if (!!_data) {
@@ -99,7 +112,8 @@ function deleteDockerImage(client, image) {
                 else {
                     resolve('');
                 }
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', data => {
                 reject('删除docker镜像执行异常');
             });
         });
@@ -110,7 +124,8 @@ function pullDockerImage(client, image) {
     return new Promise((resolve, reject) => {
         client.exec(`docker pull ${image}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('拉取docker镜像执行异常');
                 if (!!_data) {
@@ -119,9 +134,11 @@ function pullDockerImage(client, image) {
                 else {
                     resolve('');
                 }
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', (data) => {
                 reject('拉取docker镜像执行异常');
             });
         });
@@ -132,7 +149,8 @@ function startDockerImage(client, name, image, args) {
     return new Promise((resolve, reject) => {
         client.exec(`docker run ${args} --name ${name} -d ${image}`, { allowHalfOpen: true }, (err, channel) => {
             let _data = '';
-            channel.on('exit', (code) => {
+            channel
+                .on('exit', code => {
                 if (code)
                     return reject('启动docker镜像执行异常');
                 if (!!_data) {
@@ -141,9 +159,11 @@ function startDockerImage(client, name, image, args) {
                 else {
                     resolve('');
                 }
-            }).on('data', (data) => {
+            })
+                .on('data', (data) => {
                 _data += data.toString();
-            }).stderr.on('data', (data) => {
+            })
+                .stderr.on('data', data => {
                 console.log(data.toString());
                 reject('启动docker镜像执行异常');
             });
@@ -195,11 +215,15 @@ const commands_1 = __nccwpck_require__(6496);
 function connect(options) {
     const conn = new ssh2_1.Client();
     return new Promise((resolve, reject) => {
-        conn.connect(options).on('error', () => {
+        conn
+            .connect(options)
+            .on('error', () => {
             reject('连接异常');
-        }).on('close', () => {
+        })
+            .on('close', () => {
             reject('连接关闭');
-        }).on('ready', () => {
+        })
+            .on('ready', () => {
             resolve(conn);
         });
     });
@@ -246,11 +270,13 @@ function run() {
                 const [key, value] = b.split('=');
                 return `${a} --${key} ${value}`;
             }, '');
-            Promise.all(hosts.map((item) => start({
+            Promise.all(hosts.map(item => start({
                 host: item,
                 username,
                 password
-            }, name, image, code)));
+            }, name, image, code))).catch((message) => {
+                core.setFailed(message.message);
+            });
         }
         catch (error) {
             if (error instanceof Error)
