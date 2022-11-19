@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {Client, ConnectConfig} from 'ssh2'
+import { Client, ConnectConfig } from 'ssh2'
 import {
   checkDockerContainer,
   checkDockerImage,
@@ -67,6 +67,8 @@ async function run(): Promise<void> {
       const [key, value] = b.split('=')
       return `${a} --${key} ${value}`
     }, '')
+    core.info(`IP: ${JSON.stringify(hosts)}`);
+    core.info(`args: ${code}`);
     Promise.all(
       hosts.map(item =>
         start(
