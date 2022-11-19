@@ -69,7 +69,7 @@ function run() {
                 throw new Error('请输入镜像');
             if (!name)
                 throw new Error('请输入容器名');
-            core.info(JSON.stringify(args));
+            core.info(JSON.stringify(args.split('\n')));
             // const client = await connect({ username, password, host });
         }
         catch (error) {

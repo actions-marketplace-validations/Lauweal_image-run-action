@@ -27,7 +27,7 @@ async function run(): Promise<void> {
     if (!host) throw new Error('请输入ip')
     if (!image) throw new Error('请输入镜像')
     if (!name) throw new Error('请输入容器名')
-    core.info(JSON.stringify(args))
+    core.info(JSON.stringify(args.split('\n')))
     // const client = await connect({ username, password, host });
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
